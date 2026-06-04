@@ -11,12 +11,14 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-databaseService.connect()
+databaseService
+    .connect()
     .then(() => {
         app.listen(PORT, () => {
             console.log(`Server đang chạy ở cổng ${PORT}`);
         });
-    }).catch((error) => {
+    })
+    .catch((error) => {
         console.error("Kết nối database thất bại!", error);
         process.exit(1);
     });

@@ -1,4 +1,5 @@
 import { MongoClient, Db, Collection } from "mongodb";
+import { UserType } from "~/models/schemas/User.schema";
 
 const uri = process.env.MONGODB_URI as string;
 
@@ -26,7 +27,7 @@ class DatabaseService {
         }
     }
 
-    get users(): Collection {
+    get users(): Collection<UserType> {
         return this.db.collection("users");
     }
 }
