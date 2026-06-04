@@ -11,6 +11,13 @@ class UserService {
         await databaseService.users.insertOne(user);
         return { user_id: user._id };
     }
+
+    async checkEmailExists(email: string) {
+        const user = await databaseService.users.findOne({
+            email,
+        });
+        return Boolean(user);
+    }
 }
 
 const usersService = new UserService();

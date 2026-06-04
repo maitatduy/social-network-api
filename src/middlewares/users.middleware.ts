@@ -1,5 +1,6 @@
 import { checkSchema } from "express-validator";
 import { validate } from "./validation.middleware";
+import usersService from "~/services/users.service";
 
 export const registerValidator = validate(
     checkSchema(
@@ -23,6 +24,15 @@ export const registerValidator = validate(
                     errorMessage: "Email không hợp lệ!",
                 },
                 normalizeEmail: true,
+                custom: {
+                    options: async (value) => {
+                        const emailExists = await usersService.checkEmailExists(value);
+                        if (emailExists) {
+                            throw new Error("Email đã tồn tại!");
+                        }
+                        return true;
+                    },
+                },
             },
             password: {
                 notEmpty: {
