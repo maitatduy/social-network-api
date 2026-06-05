@@ -1,34 +1,40 @@
 import { checkSchema } from "express-validator";
 import { validate } from "./validation.middleware";
 import usersService from "~/services/users.service";
+import { ErrorWithStatus } from "~/models/errors/Error";
+import { HTTP_STATUS } from "~/constants/httpStatus";
+import { USERS_MESSAGES } from "~/constants/messages";
 
 export const registerValidator = validate(
     checkSchema(
         {
             name: {
                 notEmpty: {
-                    errorMessage: "Tên là bắt buộc!",
+                    errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED,
                 },
                 isString: true,
                 isLength: {
                     options: { min: 1, max: 100 },
-                    errorMessage: "Tên phải có độ dài từ 1 đến 100 ký tự!",
+                    errorMessage: USERS_MESSAGES.NAME_LENGTH,
                 },
                 trim: true,
             },
             email: {
                 notEmpty: {
-                    errorMessage: "Email là bắt buộc!",
+                    errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED,
                 },
                 isEmail: {
-                    errorMessage: "Email không hợp lệ!",
+                    errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID,
                 },
                 normalizeEmail: true,
                 custom: {
                     options: async (value) => {
                         const emailExists = await usersService.checkEmailExists(value);
                         if (emailExists) {
-                            throw new Error("Email đã tồn tại!");
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.EMAIL_ALREADY_EXISTS,
+                                status: HTTP_STATUS.CONFLICT,
+                            });
                         }
                         return true;
                     },
@@ -36,22 +42,25 @@ export const registerValidator = validate(
             },
             password: {
                 notEmpty: {
-                    errorMessage: "Mật khẩu là bắt buộc!",
+                    errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED,
                 },
                 isLength: {
                     options: {
                         min: 6,
                         max: 50,
                     },
-                    errorMessage: "Mật khẩu phải có độ dài từ 6 đến 50 ký tự!",
+                    errorMessage: USERS_MESSAGES.PASSWORD_LENGTH,
                 },
             },
             confirm_password: {
-                notEmpty: { errorMessage: "Xác nhận mật khẩu là bắt buộc!" },
+                notEmpty: { errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED },
                 custom: {
                     options: (value, { req }) => {
                         if (value !== req.body.password) {
-                            throw new Error("Mật khẩu xác nhận không khớp");
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.CONFIRM_PASSWORD_NOT_MATCH,
+                                status: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+                            });
                         }
                         return true;
                     },
@@ -63,7 +72,7 @@ export const registerValidator = validate(
                         strict: true,
                         strictSeparator: true,
                     },
-                    errorMessage: "Định dạng ngày tháng không hợp lệ",
+                    errorMessage: USERS_MESSAGES.DATE_OF_BIRTH_IS_INVALID,
                 },
             },
         },

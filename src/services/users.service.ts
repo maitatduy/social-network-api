@@ -33,7 +33,7 @@ class UserService {
         return Boolean(user);
     }
 
-    async signAccessToken(user_id: string) {
+    private signAccessToken(user_id: string) {
         return signToken({
             payload: {
                 user_id,
@@ -46,7 +46,7 @@ class UserService {
         });
     }
 
-    async signRefreshToken(user_id: string) {
+    private signRefreshToken(user_id: string) {
         return signToken({
             payload: {
                 user_id,

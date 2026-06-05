@@ -3,6 +3,7 @@ import dns from "node:dns";
 import express from "express";
 import databaseService from "~/services/database.service";
 import usersRouter from "~/routes/users.router";
+import { defaultErrorHandler } from "~/middlewares/error.middleware";
 
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
@@ -12,6 +13,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/users", usersRouter);
+app.use(defaultErrorHandler);
 
 databaseService
     .connect()

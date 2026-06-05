@@ -1,5 +1,7 @@
 import { ValidationChain, validationResult } from "express-validator";
 import { Request, Response, NextFunction } from "express";
+import { ErrorWithStatus } from "~/models/errors/Error";
+import { HTTP_STATUS } from "~/constants/httpStatus";
 
 export const validate = (validations: ValidationChain[]) => {
     return async (req: Request, res: Response, next: NextFunction) => {
@@ -9,8 +11,23 @@ export const validate = (validations: ValidationChain[]) => {
         if (errors.isEmpty()) {
             return next();
         }
-        res.status(422).json({
-            errors: errors.mapped(),
-        });
+
+        const errorsObject = errors.mapped();
+
+        // Duyệt qua từng lỗi, nếu cái nào là ErrorWithStatus thì next(err) luôn
+        for (const key in errorsObject) {
+            const { msg } = errorsObject[key];
+
+            if (msg instanceof ErrorWithStatus) {
+                return next(msg);
+            }
+        }
+        return next(
+            new ErrorWithStatus({
+                message: "Dữ liệu gửi lên không hợp lệ!",
+                status: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+                errors: errorsObject,
+            }),
+        );
     };
 };
