@@ -57,10 +57,7 @@ export const registerValidator = validate(
                 custom: {
                     options: (value, { req }) => {
                         if (value !== req.body.password) {
-                            throw new ErrorWithStatus({
-                                message: USERS_MESSAGES.CONFIRM_PASSWORD_NOT_MATCH,
-                                status: HTTP_STATUS.UNPROCESSABLE_ENTITY,
-                            });
+                            throw new Error(USERS_MESSAGES.CONFIRM_PASSWORD_NOT_MATCH);
                         }
                         return true;
                     },
