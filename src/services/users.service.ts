@@ -26,6 +26,14 @@ class UserService {
         return { access_token, refresh_token };
     }
 
+    async login(user_id: string) {
+        const [access_token, refresh_token] = await Promise.all([
+            this.signAccessToken(user_id),
+            this.signRefreshToken(user_id),
+        ]);
+        return { access_token, refresh_token };
+    }
+
     async checkEmailExists(email: string) {
         const user = await databaseService.users.findOne({
             email,
