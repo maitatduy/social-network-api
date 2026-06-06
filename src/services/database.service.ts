@@ -22,9 +22,36 @@ class DatabaseService {
             });
 
             console.log("Kết nối MongoDB thành công!");
+
+            await this.createIndexes();
         } catch (error) {
             console.log(error);
             throw error;
+        }
+    }
+
+    private async createIndexes() {
+        await Promise.all([this.indexUsers(), this.indexRefreshTokens()]);
+    }
+
+    // Index cho collection users
+    private async indexUsers() {
+        const exists = await this.users.indexExists("email_1");
+        if (!exists) {
+            await this.users.createIndex({ email: 1 }, { unique: true });
+            console.log("Tạo index users thành công");
+        }
+    }
+
+    // TTL index cho collection refresh_tokens
+    private async indexRefreshTokens() {
+        const exists = await this.refreshTokens.indexExists("exp_1");
+        if (!exists) {
+            await this.refreshTokens.createIndex(
+                { exp: 1 },
+                { expireAfterSeconds: 0 }, // MongoDB tự xóa khi exp < thời điểm hiện tại
+            );
+            console.log("Tạo index refresh_tokens thành công");
         }
     }
 
