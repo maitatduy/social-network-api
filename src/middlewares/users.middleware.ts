@@ -7,6 +7,7 @@ import { USERS_MESSAGES } from "~/constants/messages";
 import databaseService from "~/services/database.service";
 import { hashPassword } from "~/utils/crypto";
 import { verifyToken } from "~/utils/jwt";
+import { TokenType } from "~/constants/enum";
 
 export const registerValidator = validate(
     checkSchema(
@@ -138,8 +139,18 @@ export const accessTokenValidator = validate(
 
                         try {
                             const decoded = await verifyToken({ token: access_token });
+                            if (decoded.token_type !== TokenType.AccessToken) {
+                                throw new ErrorWithStatus({
+                                    message: USERS_MESSAGES.ACCESS_TOKEN_IS_INVALID,
+                                    status: HTTP_STATUS.UNAUTHORIZED,
+                                });
+                            }
+
                             req.decoded_authorization = decoded;
-                        } catch {
+                        } catch (error) {
+                            if (error instanceof ErrorWithStatus) {
+                                throw error;
+                            }
                             throw new ErrorWithStatus({
                                 message: USERS_MESSAGES.ACCESS_TOKEN_IS_INVALID,
                                 status: HTTP_STATUS.UNAUTHORIZED,
@@ -167,6 +178,14 @@ export const refreshTokenValidator = validate(
                                 verifyToken({ token: value }),
                                 databaseService.refreshTokens.findOne({ token: value }),
                             ]);
+
+                            // Kiểm tra token_type
+                            if (decoded.token_type !== TokenType.RefreshToken) {
+                                throw new ErrorWithStatus({
+                                    message: USERS_MESSAGES.REFRESH_TOKEN_IS_INVALID,
+                                    status: HTTP_STATUS.UNAUTHORIZED,
+                                });
+                            }
 
                             if (!token) {
                                 throw new ErrorWithStatus({
