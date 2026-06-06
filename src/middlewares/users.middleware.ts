@@ -6,6 +6,7 @@ import { HTTP_STATUS } from "~/constants/httpStatus";
 import { USERS_MESSAGES } from "~/constants/messages";
 import databaseService from "~/services/database.service";
 import { hashPassword } from "~/utils/crypto";
+import { verifyToken } from "~/utils/jwt";
 
 export const registerValidator = validate(
     checkSchema(
@@ -113,6 +114,78 @@ export const loginValidator = validate(
                 isLength: {
                     options: { min: 6, max: 50 },
                     errorMessage: USERS_MESSAGES.PASSWORD_LENGTH,
+                },
+            },
+        },
+        ["body"],
+    ),
+);
+
+export const accessTokenValidator = validate(
+    checkSchema(
+        {
+            Authorization: {
+                notEmpty: { errorMessage: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED },
+                custom: {
+                    options: async (value, { req }) => {
+                        const access_token = value.split(" ")[1]; // Bearer <token>
+                        if (!access_token) {
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED,
+                                status: HTTP_STATUS.UNAUTHORIZED,
+                            });
+                        }
+
+                        try {
+                            const decoded = await verifyToken({ token: access_token });
+                            req.decoded_authorization = decoded;
+                        } catch {
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.ACCESS_TOKEN_IS_INVALID,
+                                status: HTTP_STATUS.UNAUTHORIZED,
+                            });
+                        }
+
+                        return true;
+                    },
+                },
+            },
+        },
+        ["headers"],
+    ),
+);
+
+export const refreshTokenValidator = validate(
+    checkSchema(
+        {
+            refresh_token: {
+                notEmpty: { errorMessage: USERS_MESSAGES.REFRESH_TOKEN_IS_REQUIRED },
+                custom: {
+                    options: async (value, { req }) => {
+                        try {
+                            const [decoded, token] = await Promise.all([
+                                verifyToken({ token: value }),
+                                databaseService.refreshTokens.findOne({ token: value }),
+                            ]);
+
+                            if (!token) {
+                                throw new ErrorWithStatus({
+                                    message: USERS_MESSAGES.REFRESH_TOKEN_NOT_FOUND,
+                                    status: HTTP_STATUS.UNAUTHORIZED,
+                                });
+                            }
+
+                            req.decoded_refresh_token = decoded;
+                        } catch (err) {
+                            if (err instanceof ErrorWithStatus) throw err;
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.REFRESH_TOKEN_IS_INVALID,
+                                status: HTTP_STATUS.UNAUTHORIZED,
+                            });
+                        }
+
+                        return true;
+                    },
                 },
             },
         },

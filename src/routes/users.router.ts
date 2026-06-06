@@ -1,6 +1,15 @@
 import { Router } from "express";
-import { loginController, registerController } from "~/controllers/users.controller";
-import { loginValidator, registerValidator } from "~/middlewares/users.middleware";
+import {
+    loginController,
+    logoutController,
+    registerController,
+} from "~/controllers/users.controller";
+import {
+    accessTokenValidator,
+    loginValidator,
+    refreshTokenValidator,
+    registerValidator,
+} from "~/middlewares/users.middleware";
 import { wrapAsync } from "~/utils/helpers";
 
 const usersRouter = Router();
@@ -20,5 +29,19 @@ usersRouter.post("/register", registerValidator, wrapAsync(registerController));
  * Request Body: { email: string, password: string }
  */
 usersRouter.post("/login", loginValidator, wrapAsync(loginController));
+
+/**
+ * Description: Logout user and invalidate refresh token
+ * Path: /users/logout
+ * Method: POST
+ * Header: { Authorization: Bearer <access_token> }
+ * Request Body: { refresh_token: string }
+ */
+usersRouter.post(
+    "/logout",
+    accessTokenValidator,
+    refreshTokenValidator,
+    wrapAsync(logoutController),
+);
 
 export default usersRouter;

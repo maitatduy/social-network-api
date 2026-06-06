@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
 import { USERS_MESSAGES } from "~/constants/messages";
-import { LoginReqBody, RegisterReqBody } from "~/models/requests/User.request";
+import { LoginReqBody, LogoutReqBody, RegisterReqBody } from "~/models/requests/User.request";
 import { LoginResponse, RegisterResponse } from "~/models/responses/User.response";
 import usersService from "~/services/users.service";
 
@@ -25,5 +25,15 @@ export const loginController = async (
     res.json({
         message: USERS_MESSAGES.LOGIN_SUCCESS,
         result,
+    });
+};
+
+export const logoutController = async (
+    req: Request<ParamsDictionary, any, LogoutReqBody>,
+    res: Response,
+) => {
+    await usersService.logout(req.body.refresh_token);
+    res.json({
+        message: USERS_MESSAGES.LOGOUT_SUCCESS,
     });
 };

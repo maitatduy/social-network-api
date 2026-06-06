@@ -1,4 +1,4 @@
-import jwt, { SignOptions } from "jsonwebtoken";
+import jwt, { JwtPayload, SignOptions } from "jsonwebtoken";
 
 export const signToken = ({
     payload,
@@ -26,4 +26,19 @@ export const decodeToken = (token: string) => {
         exp: number;
         [key: string]: any;
     };
+};
+
+export const verifyToken = ({
+    token,
+    secretOrPublicKey = process.env.JWT_SECRET as string,
+}: {
+    token: string;
+    secretOrPublicKey?: string;
+}) => {
+    return new Promise<JwtPayload>((resolve, reject) => {
+        jwt.verify(token, secretOrPublicKey, (err, decoded) => {
+            if (err) reject(err);
+            else resolve(decoded as JwtPayload);
+        });
+    });
 };
