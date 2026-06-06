@@ -89,6 +89,18 @@ class UserService {
             }),
         );
     }
+
+    async refreshToken(user_id: string, old_refresh_token: string) {
+        const [access_token, refresh_token] = await Promise.all([
+            this.signAccessToken(user_id),
+            this.signRefreshToken(user_id),
+            databaseService.refreshTokens.deleteOne({ token: old_refresh_token }),
+        ]);
+
+        await this.saveRefreshToken(user_id, refresh_token);
+
+        return { access_token, refresh_token };
+    }
 }
 
 const usersService = new UserService();

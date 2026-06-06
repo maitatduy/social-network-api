@@ -28,4 +28,6 @@ export const USERS_MESSAGES = {
 
     ACCESS_TOKEN_IS_REQUIRED: "Access token là bắt buộc",
     ACCESS_TOKEN_IS_INVALID: "Access token không hợp lệ",
+
+    REFRESH_TOKEN_SUCCESS: "Làm mới token thành công",
 } as const;

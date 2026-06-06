@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
     loginController,
     logoutController,
+    refreshTokenController,
     registerController,
 } from "~/controllers/users.controller";
 import {
@@ -43,5 +44,13 @@ usersRouter.post(
     refreshTokenValidator,
     wrapAsync(logoutController),
 );
+
+/**
+ * Description: Generate a new access token using refresh token
+ * Path: /users/refresh-token
+ * Method: POST
+ * Request Body: { refresh_token: string }
+ */
+usersRouter.post("/refresh-token", refreshTokenValidator, wrapAsync(refreshTokenController));
 
 export default usersRouter;

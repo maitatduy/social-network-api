@@ -1,7 +1,12 @@
 import { Request, Response } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
 import { USERS_MESSAGES } from "~/constants/messages";
-import { LoginReqBody, LogoutReqBody, RegisterReqBody } from "~/models/requests/User.request";
+import {
+    LoginReqBody,
+    LogoutReqBody,
+    RefreshTokenReqBody,
+    RegisterReqBody,
+} from "~/models/requests/User.request";
 import { LoginResponse, RegisterResponse } from "~/models/responses/User.response";
 import usersService from "~/services/users.service";
 
@@ -35,5 +40,20 @@ export const logoutController = async (
     await usersService.logout(req.body.refresh_token);
     res.json({
         message: USERS_MESSAGES.LOGOUT_SUCCESS,
+    });
+};
+
+export const refreshTokenController = async (
+    req: Request<ParamsDictionary, any, RefreshTokenReqBody>,
+    res: Response,
+) => {
+    const { user_id } = req.decoded_refresh_token!;
+    const { refresh_token } = req.body;
+
+    const result = await usersService.refreshToken(user_id as string, refresh_token);
+
+    res.json({
+        message: USERS_MESSAGES.REFRESH_TOKEN_SUCCESS,
+        result,
     });
 };
