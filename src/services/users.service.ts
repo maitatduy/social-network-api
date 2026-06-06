@@ -1,10 +1,12 @@
 import User from "~/models/database/User";
 import { RegisterReqBody } from "~/models/requests/User.request";
 import databaseService from "./database.service";
-import { signToken } from "~/utils/jwt";
+import { decodeToken, signToken } from "~/utils/jwt";
 import { TokenType } from "~/constants/enum";
 import { StringValue } from "ms";
 import { hashPassword } from "~/utils/crypto";
+import RefreshToken from "~/models/database/RefreshToken";
+import { ObjectId } from "mongodb";
 
 class UserService {
     async register(payload: RegisterReqBody) {
@@ -23,6 +25,8 @@ class UserService {
             this.signRefreshToken(user_id),
         ]);
 
+        await this.saveRefreshToken(user_id, refresh_token);
+
         return { access_token, refresh_token };
     }
 
@@ -31,6 +35,9 @@ class UserService {
             this.signAccessToken(user_id),
             this.signRefreshToken(user_id),
         ]);
+
+        await this.saveRefreshToken(user_id, refresh_token);
+
         return { access_token, refresh_token };
     }
 
@@ -65,6 +72,18 @@ class UserService {
                 algorithm: "HS256",
             },
         });
+    }
+
+    private async saveRefreshToken(user_id: string, refresh_token: string) {
+        const { iat, exp } = decodeToken(refresh_token);
+        await databaseService.refreshTokens.insertOne(
+            new RefreshToken({
+                token: refresh_token,
+                user_id: new ObjectId(user_id),
+                iat,
+                exp,
+            }),
+        );
     }
 }
 

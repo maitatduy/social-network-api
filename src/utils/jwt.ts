@@ -19,3 +19,11 @@ export const signToken = ({
         });
     });
 };
+
+export const decodeToken = (token: string) => {
+    return jwt.decode(token) as {
+        iat: number;
+        exp: number;
+        [key: string]: any;
+    };
+};

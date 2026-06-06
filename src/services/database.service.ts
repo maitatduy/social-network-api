@@ -1,4 +1,5 @@
 import { MongoClient, Db, Collection } from "mongodb";
+import { RefreshTokenType } from "~/models/schemas/RefreshToken.schema";
 import { UserType } from "~/models/schemas/User.schema";
 
 const uri = process.env.MONGODB_URI as string;
@@ -29,6 +30,10 @@ class DatabaseService {
 
     get users(): Collection<UserType> {
         return this.db.collection("users");
+    }
+
+    get refreshTokens(): Collection<RefreshTokenType> {
+        return this.db.collection("refresh_tokens");
     }
 }
 
