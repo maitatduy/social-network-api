@@ -4,6 +4,7 @@ import {
     logoutController,
     refreshTokenController,
     registerController,
+    resendVerifyEmailController,
     verifyEmailController,
 } from "~/controllers/users.controller";
 import {
@@ -11,6 +12,7 @@ import {
     loginValidator,
     refreshTokenValidator,
     registerValidator,
+    resendVerifyEmailValidator,
     verifyEmailValidator,
 } from "~/middlewares/users.middleware";
 import { wrapAsync } from "~/utils/helpers";
@@ -62,5 +64,18 @@ usersRouter.post("/refresh-token", refreshTokenValidator, wrapAsync(refreshToken
  * Request Body: { email_verify_token: string }
  */
 usersRouter.post("/verify-email", verifyEmailValidator, wrapAsync(verifyEmailController));
+
+/**
+ * Description: Resend email verification link to unverified user
+ * Path: /users/resend-verify-email
+ * Method: POST
+ * Header: { Authorization: Bearer <access_token> }
+ */
+usersRouter.post(
+    "/resend-verify-email",
+    accessTokenValidator,
+    resendVerifyEmailValidator,
+    wrapAsync(resendVerifyEmailController),
+);
 
 export default usersRouter;

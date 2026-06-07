@@ -8,15 +8,11 @@ import {
     RegisterReqBody,
     VerifyEmailReqBody,
 } from "~/models/requests/User.request";
-import {
-    LoginResponse,
-    RegisterResponse,
-    VerifyEmailResponse,
-} from "~/models/responses/User.response";
+import { AuthResponse, MessageResponse } from "~/models/responses/User.response";
 import usersService from "~/services/users.service";
 
 export const registerController = async (
-    req: Request<ParamsDictionary, RegisterResponse, RegisterReqBody>,
+    req: Request<ParamsDictionary, AuthResponse, RegisterReqBody>,
     res: Response,
 ) => {
     const result = await usersService.register(req.body);
@@ -27,7 +23,7 @@ export const registerController = async (
 };
 
 export const loginController = async (
-    req: Request<ParamsDictionary, LoginResponse, LoginReqBody>,
+    req: Request<ParamsDictionary, AuthResponse, LoginReqBody>,
     res: Response,
 ) => {
     const { _id } = req.user!;
@@ -39,7 +35,7 @@ export const loginController = async (
 };
 
 export const logoutController = async (
-    req: Request<ParamsDictionary, any, LogoutReqBody>,
+    req: Request<ParamsDictionary, MessageResponse, LogoutReqBody>,
     res: Response,
 ) => {
     await usersService.logout(req.body.refresh_token);
@@ -49,7 +45,7 @@ export const logoutController = async (
 };
 
 export const refreshTokenController = async (
-    req: Request<ParamsDictionary, any, RefreshTokenReqBody>,
+    req: Request<ParamsDictionary, AuthResponse, RefreshTokenReqBody>,
     res: Response,
 ) => {
     const { user_id } = req.decoded_refresh_token!;
@@ -64,7 +60,7 @@ export const refreshTokenController = async (
 };
 
 export const verifyEmailController = async (
-    req: Request<ParamsDictionary, VerifyEmailResponse, VerifyEmailReqBody>,
+    req: Request<ParamsDictionary, AuthResponse, VerifyEmailReqBody>,
     res: Response,
 ) => {
     const { user_id } = req.decoded_email_verify_token!;
@@ -73,5 +69,14 @@ export const verifyEmailController = async (
     res.json({
         message: USERS_MESSAGES.VERIFY_EMAIL_SUCCESS,
         result,
+    });
+};
+
+export const resendVerifyEmailController = async (req: Request, res: Response) => {
+    const { user_id } = req.decoded_authorization!;
+    await usersService.resendVerifyEmail(user_id as string);
+
+    res.json({
+        message: USERS_MESSAGES.RESEND_VERIFY_EMAIL_SUCCESS,
     });
 };

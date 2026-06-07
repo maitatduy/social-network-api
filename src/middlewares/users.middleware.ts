@@ -9,6 +9,7 @@ import { hashPassword } from "~/utils/crypto";
 import { verifyToken } from "~/utils/jwt";
 import { TokenType, UserVerifyStatus } from "~/constants/enum";
 import { ObjectId } from "mongodb";
+import { NextFunction, Request, Response } from "express";
 
 export const registerValidator = validate(
     checkSchema(
@@ -277,3 +278,35 @@ export const verifyEmailValidator = validate(
         ["body"],
     ),
 );
+
+export const resendVerifyEmailValidator = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    const { user_id } = req.decoded_authorization!;
+
+    const user = await databaseService.users.findOne({
+        _id: new ObjectId(user_id),
+    });
+
+    if (!user) {
+        return next(
+            new ErrorWithStatus({
+                message: USERS_MESSAGES.USER_NOT_FOUND,
+                status: HTTP_STATUS.NOT_FOUND,
+            }),
+        );
+    }
+
+    if (user.verify === UserVerifyStatus.Verified) {
+        return next(
+            new ErrorWithStatus({
+                message: USERS_MESSAGES.EMAIL_ALREADY_VERIFIED,
+                status: HTTP_STATUS.OK,
+            }),
+        );
+    }
+
+    next();
+};

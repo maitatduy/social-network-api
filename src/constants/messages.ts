@@ -35,4 +35,7 @@ export const USERS_MESSAGES = {
     EMAIL_VERIFY_TOKEN_IS_INVALID: "Email verify token không hợp lệ",
     EMAIL_ALREADY_VERIFIED: "Email đã được xác thực",
     VERIFY_EMAIL_SUCCESS: "Xác thực email thành công",
+
+    RESEND_VERIFY_EMAIL_SUCCESS: "Gửi lại email xác thực thành công",
+    USER_NOT_FOUND: "Người dùng không tồn tại",
 } as const;
