@@ -2,7 +2,7 @@ import User from "~/models/database/User";
 import { RegisterReqBody } from "~/models/requests/User.request";
 import databaseService from "./database.service";
 import { decodeToken, signToken } from "~/utils/jwt";
-import { TokenType } from "~/constants/enum";
+import { TokenType, UserVerifyStatus } from "~/constants/enum";
 import { StringValue } from "ms";
 import { hashPassword } from "~/utils/crypto";
 import RefreshToken from "~/models/database/RefreshToken";
@@ -10,22 +10,30 @@ import { ObjectId } from "mongodb";
 
 class UserService {
     async register(payload: RegisterReqBody) {
+        const user_id = new ObjectId();
+
+        const email_verify_token = await this.signEmailVerifyToken(user_id.toString());
+
         const user = new User({
             ...payload,
+            _id: user_id,
             date_of_birth: new Date(payload.date_of_birth),
             password: hashPassword(payload.password),
+            email_verify_token,
         });
+
         await databaseService.users.insertOne(user);
 
-        const user_id = user._id!.toString();
+        // TODO: gửi email chứa email_verify_token
+        console.log("email_verify_token:", email_verify_token);
 
         // Ký cả 2 token song song
         const [access_token, refresh_token] = await Promise.all([
-            this.signAccessToken(user_id),
-            this.signRefreshToken(user_id),
+            this.signAccessToken(user_id.toString()),
+            this.signRefreshToken(user_id.toString()),
         ]);
 
-        await this.saveRefreshToken(user_id, refresh_token);
+        await this.saveRefreshToken(user_id.toString(), refresh_token);
 
         return { access_token, refresh_token };
     }
@@ -100,6 +108,44 @@ class UserService {
         await this.saveRefreshToken(user_id, refresh_token);
 
         return { access_token, refresh_token };
+    }
+
+    async verifyEmail(user_id: string) {
+        await databaseService.users.updateOne(
+            {
+                _id: new ObjectId(user_id),
+            },
+            {
+                $set: {
+                    verify: UserVerifyStatus.Verified,
+                    email_verify_token: "",
+                },
+                $currentDate: {
+                    updated_at: true,
+                }, // MongoDB tự cập nhật thời gian
+            },
+        );
+
+        const [access_token, refresh_token] = await Promise.all([
+            this.signAccessToken(user_id),
+            this.signRefreshToken(user_id),
+        ]);
+
+        await this.saveRefreshToken(user_id, refresh_token);
+
+        return { access_token, refresh_token };
+    }
+
+    private signEmailVerifyToken(user_id: string) {
+        return signToken({
+            payload: {
+                user_id,
+                token_type: TokenType.EmailVerifyToken,
+            },
+            options: {
+                expiresIn: process.env.JWT_EMAIL_VERIFY_TOKEN_EXPIRES_IN as StringValue,
+            },
+        });
     }
 }
 

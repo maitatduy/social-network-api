@@ -30,4 +30,9 @@ export const USERS_MESSAGES = {
     ACCESS_TOKEN_IS_INVALID: "Access token không hợp lệ",
 
     REFRESH_TOKEN_SUCCESS: "Làm mới token thành công",
+
+    EMAIL_VERIFY_TOKEN_IS_REQUIRED: "Email verify token là bắt buộc",
+    EMAIL_VERIFY_TOKEN_IS_INVALID: "Email verify token không hợp lệ",
+    EMAIL_ALREADY_VERIFIED: "Email đã được xác thực",
+    VERIFY_EMAIL_SUCCESS: "Xác thực email thành công",
 } as const;

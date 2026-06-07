@@ -6,8 +6,13 @@ import {
     LogoutReqBody,
     RefreshTokenReqBody,
     RegisterReqBody,
+    VerifyEmailReqBody,
 } from "~/models/requests/User.request";
-import { LoginResponse, RegisterResponse } from "~/models/responses/User.response";
+import {
+    LoginResponse,
+    RegisterResponse,
+    VerifyEmailResponse,
+} from "~/models/responses/User.response";
 import usersService from "~/services/users.service";
 
 export const registerController = async (
@@ -54,6 +59,19 @@ export const refreshTokenController = async (
 
     res.json({
         message: USERS_MESSAGES.REFRESH_TOKEN_SUCCESS,
+        result,
+    });
+};
+
+export const verifyEmailController = async (
+    req: Request<ParamsDictionary, VerifyEmailResponse, VerifyEmailReqBody>,
+    res: Response,
+) => {
+    const { user_id } = req.decoded_email_verify_token!;
+    const result = await usersService.verifyEmail(user_id as string);
+
+    res.json({
+        message: USERS_MESSAGES.VERIFY_EMAIL_SUCCESS,
         result,
     });
 };

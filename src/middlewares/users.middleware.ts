@@ -7,7 +7,8 @@ import { USERS_MESSAGES } from "~/constants/messages";
 import databaseService from "~/services/database.service";
 import { hashPassword } from "~/utils/crypto";
 import { verifyToken } from "~/utils/jwt";
-import { TokenType } from "~/constants/enum";
+import { TokenType, UserVerifyStatus } from "~/constants/enum";
+import { ObjectId } from "mongodb";
 
 export const registerValidator = validate(
     checkSchema(
@@ -147,9 +148,9 @@ export const accessTokenValidator = validate(
                             }
 
                             req.decoded_authorization = decoded;
-                        } catch (error) {
-                            if (error instanceof ErrorWithStatus) {
-                                throw error;
+                        } catch (err) {
+                            if (err instanceof ErrorWithStatus) {
+                                throw err;
                             }
                             throw new ErrorWithStatus({
                                 message: USERS_MESSAGES.ACCESS_TOKEN_IS_INVALID,
@@ -199,6 +200,71 @@ export const refreshTokenValidator = validate(
                             if (err instanceof ErrorWithStatus) throw err;
                             throw new ErrorWithStatus({
                                 message: USERS_MESSAGES.REFRESH_TOKEN_IS_INVALID,
+                                status: HTTP_STATUS.UNAUTHORIZED,
+                            });
+                        }
+
+                        return true;
+                    },
+                },
+            },
+        },
+        ["body"],
+    ),
+);
+
+export const verifyEmailValidator = validate(
+    checkSchema(
+        {
+            email_verify_token: {
+                trim: true,
+                notEmpty: { errorMessage: USERS_MESSAGES.EMAIL_VERIFY_TOKEN_IS_REQUIRED },
+                custom: {
+                    options: async (value, { req }) => {
+                        try {
+                            const decoded = await verifyToken({ token: value });
+
+                            // Kiểm tra token_type
+                            if (decoded.token_type !== TokenType.EmailVerifyToken) {
+                                throw new ErrorWithStatus({
+                                    message: USERS_MESSAGES.EMAIL_VERIFY_TOKEN_IS_INVALID,
+                                    status: HTTP_STATUS.UNAUTHORIZED,
+                                });
+                            }
+
+                            // Tìm user theo user_id trong payload
+                            const user = await databaseService.users.findOne({
+                                _id: new ObjectId(decoded.user_id),
+                            });
+
+                            if (!user) {
+                                throw new ErrorWithStatus({
+                                    message: USERS_MESSAGES.EMAIL_VERIFY_TOKEN_IS_INVALID,
+                                    status: HTTP_STATUS.UNAUTHORIZED,
+                                });
+                            }
+
+                            // Email đã verify rồi
+                            if (user.verify === UserVerifyStatus.Verified) {
+                                throw new ErrorWithStatus({
+                                    message: USERS_MESSAGES.EMAIL_ALREADY_VERIFIED,
+                                    status: HTTP_STATUS.OK,
+                                });
+                            }
+
+                            // Token không khớp với token đang lưu trong DB
+                            if (user.email_verify_token !== value) {
+                                throw new ErrorWithStatus({
+                                    message: USERS_MESSAGES.EMAIL_VERIFY_TOKEN_IS_INVALID,
+                                    status: HTTP_STATUS.UNAUTHORIZED,
+                                });
+                            }
+
+                            req.decoded_email_verify_token = decoded;
+                        } catch (err) {
+                            if (err instanceof ErrorWithStatus) throw err;
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.EMAIL_VERIFY_TOKEN_IS_INVALID,
                                 status: HTTP_STATUS.UNAUTHORIZED,
                             });
                         }

@@ -4,12 +4,14 @@ import {
     logoutController,
     refreshTokenController,
     registerController,
+    verifyEmailController,
 } from "~/controllers/users.controller";
 import {
     accessTokenValidator,
     loginValidator,
     refreshTokenValidator,
     registerValidator,
+    verifyEmailValidator,
 } from "~/middlewares/users.middleware";
 import { wrapAsync } from "~/utils/helpers";
 
@@ -52,5 +54,13 @@ usersRouter.post(
  * Request Body: { refresh_token: string }
  */
 usersRouter.post("/refresh-token", refreshTokenValidator, wrapAsync(refreshTokenController));
+
+/**
+ * Description: Verify email when user client click on the link in email
+ * Path: /users/verify-email
+ * Method: POST
+ * Request Body: { email_verify_token: string }
+ */
+usersRouter.post("/verify-email", verifyEmailValidator, wrapAsync(verifyEmailController));
 
 export default usersRouter;
