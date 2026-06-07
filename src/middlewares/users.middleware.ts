@@ -31,7 +31,7 @@ export const registerValidator = validate(
                 isEmail: {
                     errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID,
                 },
-                normalizeEmail: true,
+                trim: true,
                 custom: {
                     options: async (value) => {
                         const emailExists = await usersService.checkEmailExists(value);
@@ -93,7 +93,7 @@ export const loginValidator = validate(
             email: {
                 notEmpty: { errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED },
                 isEmail: { errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID },
-                normalizeEmail: true,
+                trim: true,
                 custom: {
                     options: async (value, { req }) => {
                         const user = await databaseService.users.findOne({
