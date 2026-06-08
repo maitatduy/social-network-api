@@ -86,6 +86,19 @@ class UserService {
         });
     }
 
+    private signForgotPasswordToken(user_id: string) {
+        return signToken({
+            payload: {
+                user_id,
+                token_type: TokenType.ForgotPasswordToken,
+            },
+            options: {
+                expiresIn: process.env.JWT_FORGOT_PASSWORD_TOKEN_EXPIRES_IN as StringValue,
+                algorithm: "HS256",
+            },
+        });
+    }
+
     private async saveRefreshToken(user_id: string, refresh_token: string) {
         const { iat, exp } = decodeToken(refresh_token);
         await databaseService.refreshTokens.insertOne(
@@ -166,6 +179,26 @@ class UserService {
                 },
             },
         );
+    }
+
+    async forgotPassword(user_id: string) {
+        const forgot_password_token = await this.signForgotPasswordToken(user_id);
+
+        await databaseService.users.updateOne(
+            {
+                _id: new ObjectId(user_id),
+            },
+            {
+                $set: {
+                    forgot_password_token,
+                },
+                $currentDate: {
+                    updated_at: true,
+                },
+            },
+        );
+
+        // TODO: Gửi email
     }
 }
 

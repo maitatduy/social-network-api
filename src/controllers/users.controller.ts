@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
 import { USERS_MESSAGES } from "~/constants/messages";
 import {
+    ForgotPasswordReqBody,
     LoginReqBody,
     LogoutReqBody,
     RefreshTokenReqBody,
@@ -78,5 +79,17 @@ export const resendVerifyEmailController = async (req: Request, res: Response) =
 
     res.json({
         message: USERS_MESSAGES.RESEND_VERIFY_EMAIL_SUCCESS,
+    });
+};
+
+export const forgotPasswordController = async (
+    req: Request<ParamsDictionary, MessageResponse, ForgotPasswordReqBody>,
+    res: Response,
+) => {
+    const { _id } = req.user!;
+    await usersService.forgotPassword(_id.toString());
+
+    res.json({
+        message: USERS_MESSAGES.FORGOT_PASSWORD_SUCCESS,
     });
 };

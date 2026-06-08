@@ -38,4 +38,9 @@ export const USERS_MESSAGES = {
 
     RESEND_VERIFY_EMAIL_SUCCESS: "Gửi lại email xác thực thành công",
     USER_NOT_FOUND: "Người dùng không tồn tại",
+
+    FORGOT_PASSWORD_SUCCESS: "Gửi email reset mật khẩu thành công",
+    FORGOT_PASSWORD_TOKEN_IS_REQUIRED: "Forgot password token là bắt buộc",
+    FORGOT_PASSWORD_TOKEN_IS_INVALID: "Forgot password token không hợp lệ",
+    RESET_PASSWORD_SUCCESS: "Đặt lại mật khẩu thành công",
 } as const;
