@@ -7,6 +7,7 @@ import {
     registerController,
     resendVerifyEmailController,
     verifyEmailController,
+    verifyForgotPasswordTokenController,
 } from "~/controllers/users.controller";
 import {
     accessTokenValidator,
@@ -16,6 +17,7 @@ import {
     registerValidator,
     resendVerifyEmailValidator,
     verifyEmailValidator,
+    verifyForgotPasswordTokenValidator,
 } from "~/middlewares/users.middleware";
 import { wrapAsync } from "~/utils/helpers";
 
@@ -87,5 +89,17 @@ usersRouter.post(
  * Body: { email: string }
  */
 usersRouter.post("/forgot-password", forgotPasswordValidator, wrapAsync(forgotPasswordController));
+
+/**
+ * Description. Verify link in email to reset password
+ * Path: /verify-forgot-password
+ * Method: POST
+ * Body: {forgot_password_token: string}
+ */
+usersRouter.post(
+    "/verify-forgot-password",
+    verifyForgotPasswordTokenValidator,
+    wrapAsync(verifyForgotPasswordTokenController),
+);
 
 export default usersRouter;

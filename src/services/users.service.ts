@@ -199,6 +199,7 @@ class UserService {
         );
 
         // TODO: Gửi email
+        console.log("forgot_password_token:", forgot_password_token);
     }
 }
 

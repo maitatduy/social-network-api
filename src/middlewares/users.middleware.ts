@@ -336,3 +336,55 @@ export const forgotPasswordValidator = validate(
         ["body"],
     ),
 );
+
+export const verifyForgotPasswordTokenValidator = validate(
+    checkSchema(
+        {
+            forgot_password_token: {
+                trim: true,
+                notEmpty: { errorMessage: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED },
+                custom: {
+                    options: async (value, { req }) => {
+                        try {
+                            const decoded = await verifyToken({ token: value });
+
+                            if (decoded.token_type !== TokenType.ForgotPasswordToken) {
+                                throw new ErrorWithStatus({
+                                    message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_INVALID,
+                                    status: HTTP_STATUS.UNAUTHORIZED,
+                                });
+                            }
+
+                            const user = await databaseService.users.findOne({
+                                _id: new ObjectId(decoded.user_id),
+                            });
+
+                            if (!user) {
+                                throw new ErrorWithStatus({
+                                    message: USERS_MESSAGES.USER_NOT_FOUND,
+                                    status: HTTP_STATUS.NOT_FOUND,
+                                });
+                            }
+
+                            if (user.forgot_password_token !== value) {
+                                throw new ErrorWithStatus({
+                                    message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_INVALID,
+                                    status: HTTP_STATUS.UNAUTHORIZED,
+                                });
+                            }
+                        } catch (err) {
+                            if (err instanceof ErrorWithStatus) throw err;
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_INVALID,
+                                status: HTTP_STATUS.UNAUTHORIZED,
+                            });
+                        }
+
+                        return true;
+                    },
+                },
+            },
+        },
+        ["body"],
+    ),
+);

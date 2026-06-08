@@ -93,3 +93,7 @@ export const forgotPasswordController = async (
         message: USERS_MESSAGES.FORGOT_PASSWORD_SUCCESS,
     });
 };
+
+export const verifyForgotPasswordTokenController = async (req: Request, res: Response) => {
+    res.json({ message: USERS_MESSAGES.VERIFY_FORGOT_PASSWORD_SUCCESS });
+};
