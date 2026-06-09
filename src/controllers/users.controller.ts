@@ -7,6 +7,7 @@ import {
     LogoutReqBody,
     RefreshTokenReqBody,
     RegisterReqBody,
+    ResetPasswordReqBody,
     VerifyEmailReqBody,
 } from "~/models/requests/User.request";
 import { AuthResponse, MessageResponse } from "~/models/responses/User.response";
@@ -96,4 +97,16 @@ export const forgotPasswordController = async (
 
 export const verifyForgotPasswordTokenController = async (req: Request, res: Response) => {
     res.json({ message: USERS_MESSAGES.VERIFY_FORGOT_PASSWORD_SUCCESS });
+};
+
+export const resetPasswordController = async (
+    req: Request<ParamsDictionary, MessageResponse, ResetPasswordReqBody>,
+    res: Response,
+) => {
+    const { user_id } = req.decoded_forgot_password_token!;
+    const { password } = req.body;
+
+    await usersService.resetPassword(user_id as string, password);
+
+    res.json({ message: USERS_MESSAGES.RESET_PASSWORD_SUCCESS });
 };
