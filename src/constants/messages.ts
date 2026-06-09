@@ -45,4 +45,6 @@ export const USERS_MESSAGES = {
     RESET_PASSWORD_SUCCESS: "Đặt lại mật khẩu thành công",
 
     VERIFY_FORGOT_PASSWORD_SUCCESS: "Xác thực forgot password token thành công",
+
+    GET_ME_SUCCESS: "Lấy thông tin người dùng thành công",
 } as const;

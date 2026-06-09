@@ -217,6 +217,21 @@ class UserService {
             },
         );
     }
+
+    async getMe(user_id: string) {
+        return databaseService.users.findOne(
+            {
+                _id: new ObjectId(user_id),
+            },
+            {
+                projection: {
+                    password: 0,
+                    email_verify_token: 0,
+                    forgot_password_token: 0,
+                },
+            },
+        );
+    }
 }
 
 const usersService = new UserService();
