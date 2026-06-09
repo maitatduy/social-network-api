@@ -23,10 +23,115 @@ class DatabaseService {
 
             console.log("Kết nối MongoDB thành công!");
 
-            await this.createIndexes();
+            await Promise.all([this.createCollections(), this.createIndexes()]);
         } catch (error) {
             console.log(error);
             throw error;
+        }
+    }
+
+    private async createCollections() {
+        const collections = await this.db.listCollections().toArray();
+        const collectionNames = collections.map((c) => c.name);
+
+        if (!collectionNames.includes("users")) {
+            await this.db.createCollection("users", {
+                validator: {
+                    $jsonSchema: {
+                        bsonType: "object",
+                        required: ["name", "email", "password", "created_at", "updated_at"],
+                        properties: {
+                            name: {
+                                bsonType: "string",
+                                minLength: 1,
+                                maxLength: 100,
+                                description: "Tên người dùng",
+                            },
+                            email: {
+                                bsonType: "string",
+                                pattern: "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+                                description: "Email người dùng",
+                            },
+                            password: {
+                                bsonType: "string",
+                                minLength: 1,
+                                description: "Mật khẩu đã hash",
+                            },
+                            date_of_birth: {
+                                bsonType: "date",
+                                description: "Ngày sinh",
+                            },
+                            bio: {
+                                bsonType: "string",
+                                maxLength: 200,
+                                description: "Giới thiệu bản thân",
+                            },
+                            avatar: {
+                                bsonType: "string",
+                                description: "URL ảnh đại diện",
+                            },
+                            verify: {
+                                bsonType: "int",
+                                enum: [0, 1, 2],
+                                description: "0: Unverified, 1: Verified, 2: Banned",
+                            },
+                            email_verify_token: {
+                                bsonType: "string",
+                                description: "Token xác thực email",
+                            },
+                            forgot_password_token: {
+                                bsonType: "string",
+                                description: "Token đặt lại mật khẩu",
+                            },
+                            created_at: {
+                                bsonType: "date",
+                                description: "Thời điểm tạo",
+                            },
+                            updated_at: {
+                                bsonType: "date",
+                                description: "Thời điểm cập nhật",
+                            },
+                        },
+                    },
+                },
+                validationLevel: "strict", // áp dụng cho cả insert lẫn update
+                validationAction: "error", // từ chối document không hợp lệ
+            });
+        }
+
+        if (!collectionNames.includes("refresh_tokens")) {
+            await this.db.createCollection("refresh_tokens", {
+                validator: {
+                    $jsonSchema: {
+                        bsonType: "object",
+                        required: ["token", "user_id", "iat", "exp", "created_at"],
+                        properties: {
+                            token: {
+                                bsonType: "string",
+                                description: "Refresh token string",
+                            },
+                            user_id: {
+                                bsonType: "objectId",
+                                description: "ID người dùng",
+                            },
+                            iat: {
+                                bsonType: "int",
+                                description: "Thời điểm tạo token",
+                            },
+                            exp: {
+                                bsonType: "int",
+                                description: "Thời điểm hết hạn token",
+                            },
+                            created_at: {
+                                bsonType: "date",
+                                description: "Thời điểm tạo",
+                            },
+                        },
+                    },
+                },
+                validationLevel: "strict",
+                validationAction: "error",
+            });
         }
     }
 
