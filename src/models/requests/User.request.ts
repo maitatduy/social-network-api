@@ -46,4 +46,8 @@ export interface UpdateMeReqBody {
     date_of_birth?: string;
     bio?: string;
     avatar?: string;
+    location?: string;
+    website?: string;
+    username?: string;
+    cover_photo?: string;
 }
