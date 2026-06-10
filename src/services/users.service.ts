@@ -1,5 +1,5 @@
 import User from "~/models/database/User";
-import { RegisterReqBody } from "~/models/requests/User.request";
+import { RegisterReqBody, UpdateMeReqBody } from "~/models/requests/User.request";
 import databaseService from "./database.service";
 import { decodeToken, signToken } from "~/utils/jwt";
 import { TokenType, UserVerifyStatus } from "~/constants/enum";
@@ -231,6 +231,35 @@ class UserService {
                 },
             },
         );
+    }
+
+    async updateMe(user_id: string, payload: UpdateMeReqBody) {
+        const { date_of_birth, ...rest } = payload;
+
+        const updateData = {
+            ...rest,
+            ...(date_of_birth && {
+                date_of_birth: new Date(date_of_birth),
+            }),
+        };
+
+        const result = await databaseService.users.findOneAndUpdate(
+            { _id: new ObjectId(user_id) },
+            {
+                $set: updateData,
+                $currentDate: { updated_at: true },
+            },
+            {
+                returnDocument: "after",
+                projection: {
+                    password: 0,
+                    email_verify_token: 0,
+                    forgot_password_token: 0,
+                },
+            },
+        );
+
+        return result;
     }
 }
 

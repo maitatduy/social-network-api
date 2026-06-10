@@ -47,4 +47,8 @@ export const USERS_MESSAGES = {
     VERIFY_FORGOT_PASSWORD_SUCCESS: "Xác thực forgot password token thành công",
 
     GET_ME_SUCCESS: "Lấy thông tin người dùng thành công",
+
+    UPDATE_ME_SUCCESS: 'Cập nhật thông tin thành công',
+    BIO_LENGTH: 'Bio phải có độ dài từ 1 đến 200 ký tự',
+    AVATAR_IS_INVALID: 'Avatar không hợp lệ',
 } as const;

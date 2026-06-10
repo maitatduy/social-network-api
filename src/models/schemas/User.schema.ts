@@ -12,7 +12,7 @@ export interface UserType {
     email_verify_token?: string;
     forgot_password_token?: string;
     verify?: UserVerifyStatus;
-    twitter_circle?: ObjectId[];
+    close_friends?: ObjectId[];
     bio?: string;
     location?: string;
     website?: string;

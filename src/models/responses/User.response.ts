@@ -9,7 +9,7 @@ export interface MessageResponse {
     message: string;
 }
 
-export interface GetMeResponse {
+export interface UserResponse {
     _id: string;
     name: string;
     email: string;

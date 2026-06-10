@@ -8,9 +8,10 @@ import {
     RefreshTokenReqBody,
     RegisterReqBody,
     ResetPasswordReqBody,
+    UpdateMeReqBody,
     VerifyEmailReqBody,
 } from "~/models/requests/User.request";
-import { AuthResponse, MessageResponse } from "~/models/responses/User.response";
+import { AuthResponse, MessageResponse, UserResponse } from "~/models/responses/User.response";
 import usersService from "~/services/users.service";
 
 export const registerController = async (
@@ -111,11 +112,27 @@ export const resetPasswordController = async (
     res.json({ message: USERS_MESSAGES.RESET_PASSWORD_SUCCESS });
 };
 
-export const getMeController = async (req: Request, res: Response) => {
+export const getMeController = async (
+    req: Request<ParamsDictionary, UserResponse, {}>,
+    res: Response,
+) => {
     const { user_id } = req.decoded_authorization!;
     const result = await usersService.getMe(user_id);
     res.json({
         message: USERS_MESSAGES.GET_ME_SUCCESS,
+        result,
+    });
+};
+
+export const updateMeController = async (
+    req: Request<ParamsDictionary, UserResponse, UpdateMeReqBody>,
+    res: Response,
+) => {
+    const { user_id } = req.decoded_authorization!;
+    const result = await usersService.updateMe(user_id as string, req.body);
+
+    res.json({
+        message: USERS_MESSAGES.UPDATE_ME_SUCCESS,
         result,
     });
 };

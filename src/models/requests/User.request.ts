@@ -40,3 +40,10 @@ export interface ResetPasswordReqBody {
     password: string;
     confirm_password: string;
 }
+
+export interface UpdateMeReqBody {
+    name?: string;
+    date_of_birth?: string;
+    bio?: string;
+    avatar?: string;
+}

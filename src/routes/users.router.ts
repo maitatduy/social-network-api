@@ -8,6 +8,7 @@ import {
     registerController,
     resendVerifyEmailController,
     resetPasswordController,
+    updateMeController,
     verifyEmailController,
     verifyForgotPasswordTokenController,
 } from "~/controllers/users.controller";
@@ -19,6 +20,7 @@ import {
     registerValidator,
     resendVerifyEmailValidator,
     resetPasswordValidator,
+    updateMeValidator,
     verifyEmailValidator,
     verifyForgotPasswordTokenValidator,
 } from "~/middlewares/users.middleware";
@@ -129,5 +131,19 @@ usersRouter.post(
  * Headers: { Authorization: Bearer <access_token> }
  */
 usersRouter.get("/me", accessTokenValidator, wrapAsync(getMeController));
+
+/**
+ * Description. Update current user's profile
+ * Path: /users/me
+ * Method: PATCH
+ * Headers: { Authorization: Bearer <access_token> }
+ * Body: {
+ *   name?: string,
+ *   date_of_birth?: string,
+ *   bio?: string,
+ *   avatar?: string
+ * }
+ */
+usersRouter.patch("/me", accessTokenValidator, updateMeValidator, wrapAsync(updateMeController));
 
 export default usersRouter;

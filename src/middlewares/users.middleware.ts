@@ -426,3 +426,47 @@ export const resetPasswordValidator = validate(
         ["body"],
     ),
 );
+
+export const updateMeValidator = validate(
+    checkSchema(
+        {
+            name: {
+                optional: true,
+                notEmpty: {
+                    errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED,
+                },
+                isString: true,
+                isLength: {
+                    options: { min: 1, max: 100 },
+                    errorMessage: USERS_MESSAGES.NAME_LENGTH,
+                },
+                trim: true,
+            },
+            date_of_birth: {
+                optional: true,
+                isISO8601: {
+                    options: { strict: true, strictSeparator: true },
+                    errorMessage: USERS_MESSAGES.DATE_OF_BIRTH_IS_INVALID,
+                },
+            },
+            bio: {
+                optional: true,
+                isString: true,
+                isLength: {
+                    options: { min: 1, max: 200 },
+                    errorMessage: USERS_MESSAGES.BIO_LENGTH,
+                },
+                trim: true,
+            },
+            avatar: {
+                optional: true,
+                isString: true,
+                isURL: {
+                    errorMessage: USERS_MESSAGES.AVATAR_IS_INVALID,
+                },
+                trim: true,
+            },
+        },
+        ["body"],
+    ),
+);
