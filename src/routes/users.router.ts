@@ -21,6 +21,7 @@ import {
     resendVerifyEmailValidator,
     resetPasswordValidator,
     updateMeValidator,
+    verifiedUserValidator,
     verifyEmailValidator,
     verifyForgotPasswordTokenValidator,
 } from "~/middlewares/users.middleware";
@@ -130,7 +131,7 @@ usersRouter.post(
  * Method: GET
  * Headers: { Authorization: Bearer <access_token> }
  */
-usersRouter.get("/me", accessTokenValidator, wrapAsync(getMeController));
+usersRouter.get("/me", accessTokenValidator, verifiedUserValidator, wrapAsync(getMeController));
 
 /**
  * Description. Update current user's profile
@@ -144,6 +145,12 @@ usersRouter.get("/me", accessTokenValidator, wrapAsync(getMeController));
  *   avatar?: string
  * }
  */
-usersRouter.patch("/me", accessTokenValidator, updateMeValidator, wrapAsync(updateMeController));
+usersRouter.patch(
+    "/me",
+    accessTokenValidator,
+    verifiedUserValidator,
+    updateMeValidator,
+    wrapAsync(updateMeController),
+);
 
 export default usersRouter;

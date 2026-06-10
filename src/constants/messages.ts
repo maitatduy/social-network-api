@@ -38,6 +38,7 @@ export const USERS_MESSAGES = {
 
     RESEND_VERIFY_EMAIL_SUCCESS: "Gửi lại email xác thực thành công",
     USER_NOT_FOUND: "Người dùng không tồn tại",
+    USER_NOT_VERIFIED: "Tài khoản chưa được xác thực",
 
     FORGOT_PASSWORD_SUCCESS: "Gửi email reset mật khẩu thành công",
     FORGOT_PASSWORD_TOKEN_IS_REQUIRED: "Forgot password token là bắt buộc",
@@ -48,7 +49,7 @@ export const USERS_MESSAGES = {
 
     GET_ME_SUCCESS: "Lấy thông tin người dùng thành công",
 
-    UPDATE_ME_SUCCESS: 'Cập nhật thông tin thành công',
-    BIO_LENGTH: 'Bio phải có độ dài từ 1 đến 200 ký tự',
-    AVATAR_IS_INVALID: 'Avatar không hợp lệ',
+    UPDATE_ME_SUCCESS: "Cập nhật thông tin thành công",
+    BIO_LENGTH: "Bio phải có độ dài từ 1 đến 200 ký tự",
+    AVATAR_IS_INVALID: "Avatar không hợp lệ",
 } as const;

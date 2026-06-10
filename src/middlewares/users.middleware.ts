@@ -427,6 +427,34 @@ export const resetPasswordValidator = validate(
     ),
 );
 
+export const verifiedUserValidator = async (req: Request, res: Response, next: NextFunction) => {
+    const { user_id } = req.decoded_authorization!;
+
+    const user = await databaseService.users.findOne({
+        _id: new ObjectId(user_id as string),
+    });
+
+    if (!user) {
+        return next(
+            new ErrorWithStatus({
+                message: USERS_MESSAGES.USER_NOT_FOUND,
+                status: HTTP_STATUS.NOT_FOUND,
+            }),
+        );
+    }
+
+    if (user.verify !== UserVerifyStatus.Verified) {
+        return next(
+            new ErrorWithStatus({
+                message: USERS_MESSAGES.USER_NOT_VERIFIED,
+                status: HTTP_STATUS.FORBIDDEN,
+            }),
+        );
+    }
+
+    next();
+};
+
 export const updateMeValidator = validate(
     checkSchema(
         {
