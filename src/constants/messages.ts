@@ -55,4 +55,12 @@ export const USERS_MESSAGES = {
 
     GET_USER_PROFILE_SUCCESS: "Lấy thông tin người dùng thành công",
     USERNAME_IS_INVALID: "Username không hợp lệ",
+
+    FOLLOW_SUCCESS: "Follow thành công",
+    UNFOLLOW_SUCCESS: "Unfollow thành công",
+    FOLLOWED_USER_ID_IS_REQUIRED: "followed_user_id là bắt buộc",
+    FOLLOWED_USER_NOT_FOUND: "Người dùng muốn follow không tồn tại",
+    ALREADY_FOLLOWED: "Bạn đã follow người dùng này rồi",
+    NOT_FOLLOWED: "Bạn chưa follow người dùng này",
+    CANNOT_FOLLOW_YOURSELF: "Không thể follow chính mình",
 } as const;

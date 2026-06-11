@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
 import { USERS_MESSAGES } from "~/constants/messages";
 import {
+    FollowReqBody,
     ForgotPasswordReqBody,
     GetUserProfileReqParams,
     LoginReqBody,
@@ -153,5 +154,19 @@ export const getUserProfileController = async (
     res.json({
         message: USERS_MESSAGES.GET_USER_PROFILE_SUCCESS,
         result,
+    });
+};
+
+export const followController = async (
+    req: Request<ParamsDictionary, MessageResponse, FollowReqBody>,
+    res: Response,
+) => {
+    const { user_id } = req.decoded_authorization!;
+    const { followed_user_id } = req.body;
+
+    await usersService.follow(user_id as string, followed_user_id);
+
+    res.json({
+        message: USERS_MESSAGES.FOLLOW_SUCCESS,
     });
 };

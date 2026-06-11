@@ -1,4 +1,5 @@
 import { MongoClient, Db, Collection } from "mongodb";
+import { FollowerType } from "~/models/schemas/Follower.schema";
 import { RefreshTokenType } from "~/models/schemas/RefreshToken.schema";
 import { UserType } from "~/models/schemas/User.schema";
 
@@ -133,6 +134,33 @@ class DatabaseService {
                 validationAction: "error",
             });
         }
+
+        if (!collectionNames.includes("followers")) {
+            await this.db.createCollection("followers", {
+                validator: {
+                    $jsonSchema: {
+                        bsonType: "object",
+                        required: ["user_id", "followed_user_id", "created_at"],
+                        properties: {
+                            user_id: {
+                                bsonType: "objectId",
+                                description: "ID người follow",
+                            },
+                            followed_user_id: {
+                                bsonType: "objectId",
+                                description: "ID người được follow",
+                            },
+                            created_at: {
+                                bsonType: "date",
+                                description: "Thời điểm follow",
+                            },
+                        },
+                    },
+                },
+                validationLevel: "strict",
+                validationAction: "error",
+            });
+        }
     }
 
     private async createIndexes() {
@@ -166,6 +194,10 @@ class DatabaseService {
 
     get refreshTokens(): Collection<RefreshTokenType> {
         return this.db.collection("refresh_tokens");
+    }
+
+    get followers(): Collection<FollowerType> {
+        return this.db.collection("followers");
     }
 }
 

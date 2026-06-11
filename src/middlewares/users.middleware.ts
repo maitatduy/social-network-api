@@ -523,3 +523,50 @@ export const getUserProfileValidator = validate(
         ["params"],
     ),
 );
+
+export const followValidator = validate(
+    checkSchema(
+        {
+            followed_user_id: {
+                trim: true,
+                notEmpty: { errorMessage: USERS_MESSAGES.FOLLOWED_USER_ID_IS_REQUIRED },
+                custom: {
+                    options: async (value, { req }) => {
+                        // Kiểm tra có phải ObjectId hợp lệ không
+                        if (!ObjectId.isValid(value)) {
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.FOLLOWED_USER_NOT_FOUND,
+                                status: HTTP_STATUS.NOT_FOUND,
+                            });
+                        }
+
+                        // Không thể follow chính mình
+                        const { user_id } = req.decoded_authorization!;
+
+                        if (value === user_id) {
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.CANNOT_FOLLOW_YOURSELF,
+                                status: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+                            });
+                        }
+
+                        // Kiểm tra user muốn follow có tồn tại không
+                        const followedUser = await databaseService.users.findOne({
+                            _id: new ObjectId(value),
+                        });
+
+                        if (!followedUser) {
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.FOLLOWED_USER_NOT_FOUND,
+                                status: HTTP_STATUS.NOT_FOUND,
+                            });
+                        }
+
+                        return true;
+                    },
+                },
+            },
+        },
+        ["body"],
+    ),
+);

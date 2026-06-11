@@ -7,6 +7,10 @@ import { StringValue } from "ms";
 import { hashPassword } from "~/utils/crypto";
 import RefreshToken from "~/models/database/RefreshToken";
 import { ObjectId } from "mongodb";
+import { ErrorWithStatus } from "~/models/errors/Error";
+import { USERS_MESSAGES } from "~/constants/messages";
+import { HTTP_STATUS } from "~/constants/httpStatus";
+import Follower from "~/models/database/Follower";
 
 class UserService {
     async register(payload: RegisterReqBody) {
@@ -274,6 +278,27 @@ class UserService {
                     verify: 0,
                 },
             },
+        );
+    }
+
+    async follow(user_id: string, followed_user_id: string) {
+        const existingFollow = await databaseService.followers.findOne({
+            user_id: new ObjectId(user_id),
+            followed_user_id: new ObjectId(followed_user_id),
+        });
+
+        if (existingFollow) {
+            throw new ErrorWithStatus({
+                message: USERS_MESSAGES.ALREADY_FOLLOWED,
+                status: HTTP_STATUS.CONFLICT,
+            });
+        }
+
+        await databaseService.followers.insertOne(
+            new Follower({
+                user_id: new ObjectId(user_id),
+                followed_user_id: new ObjectId(followed_user_id),
+            }),
         );
     }
 }
