@@ -562,6 +562,13 @@ export const followValidator = validate(
                             });
                         }
 
+                        // Kiểm tra user muốn follow đã xác thực chưa
+                        if (followedUser.verify === UserVerifyStatus.Unverified) {
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.CANNOT_FOLLOW_UNVERIFIED_USER,
+                                status: HTTP_STATUS.FORBIDDEN,
+                            });
+                        }
                         return true;
                     },
                 },

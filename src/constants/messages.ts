@@ -63,4 +63,5 @@ export const USERS_MESSAGES = {
     ALREADY_FOLLOWED: "Bạn đã follow người dùng này rồi",
     NOT_FOLLOWED: "Bạn chưa follow người dùng này",
     CANNOT_FOLLOW_YOURSELF: "Không thể follow chính mình",
+    CANNOT_FOLLOW_UNVERIFIED_USER: "Không thể follow người dùng chưa xác thực",
 } as const;
