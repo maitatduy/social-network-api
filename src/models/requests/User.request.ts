@@ -51,3 +51,7 @@ export interface UpdateMeReqBody {
     username?: string;
     cover_photo?: string;
 }
+
+export interface GetUserProfileReqParams {
+    username: string;
+}

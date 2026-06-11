@@ -52,4 +52,7 @@ export const USERS_MESSAGES = {
     UPDATE_ME_SUCCESS: "Cập nhật thông tin thành công",
     BIO_LENGTH: "Bio phải có độ dài từ 1 đến 200 ký tự",
     AVATAR_IS_INVALID: "Avatar không hợp lệ",
+
+    GET_USER_PROFILE_SUCCESS: "Lấy thông tin người dùng thành công",
+    USERNAME_IS_INVALID: "Username không hợp lệ",
 } as const;

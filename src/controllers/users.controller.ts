@@ -3,6 +3,7 @@ import { ParamsDictionary } from "express-serve-static-core";
 import { USERS_MESSAGES } from "~/constants/messages";
 import {
     ForgotPasswordReqBody,
+    GetUserProfileReqParams,
     LoginReqBody,
     LogoutReqBody,
     RefreshTokenReqBody,
@@ -11,7 +12,12 @@ import {
     UpdateMeReqBody,
     VerifyEmailReqBody,
 } from "~/models/requests/User.request";
-import { AuthResponse, MessageResponse, UserResponse } from "~/models/responses/User.response";
+import {
+    AuthResponse,
+    GetUserProfileResponse,
+    MessageResponse,
+    UserResponse,
+} from "~/models/responses/User.response";
 import usersService from "~/services/users.service";
 
 export const registerController = async (
@@ -133,6 +139,19 @@ export const updateMeController = async (
 
     res.json({
         message: USERS_MESSAGES.UPDATE_ME_SUCCESS,
+        result,
+    });
+};
+
+export const getUserProfileController = async (
+    req: Request<GetUserProfileReqParams, GetUserProfileResponse>,
+    res: Response,
+) => {
+    const { username } = req.params;
+    const result = await usersService.getUserProfile(username);
+
+    res.json({
+        message: USERS_MESSAGES.GET_USER_PROFILE_SUCCESS,
         result,
     });
 };

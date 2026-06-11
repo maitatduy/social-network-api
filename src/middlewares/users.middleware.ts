@@ -498,3 +498,28 @@ export const updateMeValidator = validate(
         ["body"],
     ),
 );
+
+export const getUserProfileValidator = validate(
+    checkSchema(
+        {
+            username: {
+                trim: true,
+                notEmpty: { errorMessage: USERS_MESSAGES.USERNAME_IS_INVALID },
+                isString: true,
+                custom: {
+                    options: async (value) => {
+                        const user = await databaseService.users.findOne({ username: value });
+                        if (!user) {
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.USER_NOT_FOUND,
+                                status: HTTP_STATUS.NOT_FOUND,
+                            });
+                        }
+                        return true;
+                    },
+                },
+            },
+        },
+        ["params"],
+    ),
+);

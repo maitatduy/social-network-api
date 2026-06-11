@@ -17,6 +17,7 @@ class UserService {
         const user = new User({
             ...payload,
             _id: user_id,
+            username: `user_${user_id}`,
             date_of_birth: new Date(payload.date_of_birth),
             password: hashPassword(payload.password),
             email_verify_token,
@@ -260,6 +261,20 @@ class UserService {
         );
 
         return result;
+    }
+
+    async getUserProfile(username: string) {
+        return databaseService.users.findOne(
+            { username },
+            {
+                projection: {
+                    password: 0,
+                    email_verify_token: 0,
+                    forgot_password_token: 0,
+                    verify: 0,
+                },
+            },
+        );
     }
 }
 

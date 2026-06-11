@@ -19,7 +19,7 @@ export default class User {
     website: string;
     username: string;
     avatar: string;
-    cover_photo: string;
+    cover_photo?: string;
 
     constructor(user: UserType) {
         const date = new Date();

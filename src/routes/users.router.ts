@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
     forgotPasswordController,
     getMeController,
+    getUserProfileController,
     loginController,
     logoutController,
     refreshTokenController,
@@ -16,6 +17,7 @@ import { filterMiddleware } from "~/middlewares/filter.middleware";
 import {
     accessTokenValidator,
     forgotPasswordValidator,
+    getUserProfileValidator,
     loginValidator,
     refreshTokenValidator,
     registerValidator,
@@ -164,5 +166,15 @@ usersRouter.patch(
     ]),
     wrapAsync(updateMeController),
 );
+
+/**
+ * Description. Get user profile by username
+ * Path: /:username
+ * Method: GET
+ * Params: {
+ *   username: string
+ * }
+ */
+usersRouter.get("/:username", getUserProfileValidator, wrapAsync(getUserProfileController));
 
 export default usersRouter;
