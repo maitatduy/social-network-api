@@ -577,3 +577,38 @@ export const followValidator = validate(
         ["body"],
     ),
 );
+
+export const unfollowValidator = validate(
+    checkSchema(
+        {
+            user_id: {
+                trim: true,
+                notEmpty: { errorMessage: USERS_MESSAGES.FOLLOWED_USER_ID_IS_REQUIRED },
+                custom: {
+                    options: async (value) => {
+                        if (!ObjectId.isValid(value)) {
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.FOLLOWED_USER_NOT_FOUND,
+                                status: HTTP_STATUS.NOT_FOUND,
+                            });
+                        }
+
+                        const user = await databaseService.users.findOne({
+                            _id: new ObjectId(value),
+                        });
+
+                        if (!user) {
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.FOLLOWED_USER_NOT_FOUND,
+                                status: HTTP_STATUS.NOT_FOUND,
+                            });
+                        }
+
+                        return true;
+                    },
+                },
+            },
+        },
+        ["params"],
+    ),
+);

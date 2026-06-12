@@ -10,6 +10,7 @@ import {
     RefreshTokenReqBody,
     RegisterReqBody,
     ResetPasswordReqBody,
+    UnfollowReqParams,
     UpdateMeReqBody,
     VerifyEmailReqBody,
 } from "~/models/requests/User.request";
@@ -169,4 +170,16 @@ export const followController = async (
     res.json({
         message: USERS_MESSAGES.FOLLOW_SUCCESS,
     });
+};
+
+export const unfollowController = async (
+    req: Request<UnfollowReqParams, MessageResponse>,
+    res: Response,
+) => {
+    const { user_id } = req.decoded_authorization!;
+    const { user_id: followed_user_id } = req.params;
+
+    await usersService.unfollow(user_id, followed_user_id);
+
+    res.json({ message: USERS_MESSAGES.UNFOLLOW_SUCCESS });
 };
