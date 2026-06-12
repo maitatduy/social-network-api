@@ -10,6 +10,7 @@ import { verifyToken } from "~/utils/jwt";
 import { TokenType, UserVerifyStatus } from "~/constants/enum";
 import { ObjectId } from "mongodb";
 import { NextFunction, Request, Response } from "express";
+import { REGEX_USERNAME } from "~/constants/regex";
 
 export const registerValidator = validate(
     checkSchema(
@@ -485,6 +486,29 @@ export const updateMeValidator = validate(
                     errorMessage: USERS_MESSAGES.BIO_LENGTH,
                 },
                 trim: true,
+            },
+            username: {
+                optional: true,
+                isString: {
+                    errorMessage: USERS_MESSAGES.USERNAME_MUST_BE_STRING,
+                },
+                trim: true,
+                custom: {
+                    options: async (value: string, { req }) => {
+                        if (!REGEX_USERNAME.test(value)) {
+                            throw Error(USERS_MESSAGES.USERNAME_IS_INVALID);
+                        }
+                        const user = await databaseService.users.findOne({ username: value });
+
+                        if (user) {
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.USERNAME_EXISTED,
+                                status: HTTP_STATUS.CONFLICT,
+                            });
+                        }
+                        return true;
+                    },
+                },
             },
             avatar: {
                 optional: true,

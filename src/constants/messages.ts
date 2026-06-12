@@ -54,7 +54,11 @@ export const USERS_MESSAGES = {
     AVATAR_IS_INVALID: "Avatar không hợp lệ",
 
     GET_USER_PROFILE_SUCCESS: "Lấy thông tin người dùng thành công",
-    USERNAME_IS_INVALID: "Username không hợp lệ",
+
+    USERNAME_IS_INVALID:
+        "Username phải có từ 4 đến 15 ký tự, chỉ gồm chữ cái, số hoặc dấu gạch dưới và không được chỉ chứa số",
+    USERNAME_MUST_BE_STRING: "Username phải là một chuỗi",
+    USERNAME_EXISTED: "Username đã tồn tại",
 
     FOLLOW_SUCCESS: "Follow thành công",
     UNFOLLOW_SUCCESS: "Unfollow thành công",
