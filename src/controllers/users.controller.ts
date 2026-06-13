@@ -196,3 +196,16 @@ export const changePasswordController = async (
 
     res.json({ message: USERS_MESSAGES.CHANGE_PASSWORD_SUCCESS });
 };
+
+export const oauthGoogleController = async (req: Request, res: Response) => {
+    const { code } = req.query as { code: string };
+
+    const { access_token, refresh_token, newUser } = await usersService.oauthGoogle(code);
+
+    const redirectUrl = new URL(process.env.CLIENT_REDIRECT_URI as string);
+    redirectUrl.searchParams.append("access_token", access_token);
+    redirectUrl.searchParams.append("refresh_token", refresh_token);
+    redirectUrl.searchParams.append("new_user", newUser ? "1" : "0");
+
+    res.redirect(redirectUrl.toString());
+};

@@ -76,4 +76,7 @@ export const USERS_MESSAGES = {
     NEW_PASSWORD_MUST_BE_DIFFERENT: "Mật khẩu mới phải khác mật khẩu cũ",
     CONFIRM_NEW_PASSWORD_IS_REQUIRED: "Xác nhận mật khẩu mới là bắt buộc",
     CONFIRM_NEW_PASSWORD_NOT_MATCH: "Xác nhận mật khẩu mới không khớp",
+
+    OAUTH_GOOGLE_SUCCESS: "Đăng nhập bằng Google thành công",
+    GMAIL_NOT_VERIFIED: "Gmail chưa được xác thực",
 } as const;

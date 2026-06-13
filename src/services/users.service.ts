@@ -11,6 +11,7 @@ import { ErrorWithStatus } from "~/models/errors/Error";
 import { USERS_MESSAGES } from "~/constants/messages";
 import { HTTP_STATUS } from "~/constants/httpStatus";
 import Follower from "~/models/database/Follower";
+import { getGoogleOAuthTokens, getGoogleUserInfo } from "~/utils/oauth";
 
 class UserService {
     async register(payload: RegisterReqBody) {
@@ -331,6 +332,69 @@ class UserService {
                 $currentDate: { updated_at: true },
             },
         );
+    }
+
+    async oauthGoogle(code: string) {
+        // Đổi code lấy tokens từ Google
+        const { access_token, id_token } = await getGoogleOAuthTokens(code);
+
+        // Lấy thông tin user từ Google
+        const googleUser = await getGoogleUserInfo(access_token, id_token);
+
+        if (!googleUser.verified_email) {
+            throw new ErrorWithStatus({
+                message: USERS_MESSAGES.GMAIL_NOT_VERIFIED,
+                status: HTTP_STATUS.FORBIDDEN,
+            });
+        }
+
+        const existingUser = await databaseService.users.findOne({
+            email: googleUser.email,
+        });
+
+        if (existingUser) {
+            const user_id = existingUser._id.toString();
+            const [access_token, refresh_token] = await Promise.all([
+                this.signAccessToken(user_id),
+                this.signRefreshToken(user_id),
+            ]);
+            await this.saveRefreshToken(user_id, refresh_token);
+
+            return {
+                access_token,
+                refresh_token,
+                newUser: false,
+            };
+        }
+
+        const user_id = new ObjectId();
+        const randomPassword =
+            Math.random().toString(36).slice(2) + Math.random().toString(36).toUpperCase().slice(2);
+
+        const user = new User({
+            _id: user_id,
+            name: googleUser.name,
+            email: googleUser.email,
+            username: `user_${user_id}`,
+            password: hashPassword(randomPassword),
+            avatar: googleUser.picture,
+            verify: UserVerifyStatus.Verified,
+        });
+
+        await databaseService.users.insertOne(user);
+
+        const [linkup_access_token, linkup_refresh_token] = await Promise.all([
+            this.signAccessToken(user_id.toString()),
+            this.signRefreshToken(user_id.toString()),
+        ]);
+
+        await this.saveRefreshToken(user_id.toString(), linkup_refresh_token);
+
+        return {
+            access_token: linkup_access_token,
+            refresh_token: linkup_refresh_token,
+            newUser: true,
+        };
     }
 }
 

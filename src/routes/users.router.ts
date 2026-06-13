@@ -7,6 +7,7 @@ import {
     getUserProfileController,
     loginController,
     logoutController,
+    oauthGoogleController,
     refreshTokenController,
     registerController,
     resendVerifyEmailController,
@@ -235,5 +236,42 @@ usersRouter.put(
     changePasswordValidator,
     wrapAsync(changePasswordController),
 );
+
+/**
+ * Description. Generate Google OAuth authorization URL
+ * Path: /oauth/google/url
+ * Method: GET
+ *
+ * Response: {
+ *   url: string
+ * }
+ */
+usersRouter.get("/oauth/google/url", (req, res) => {
+    const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
+    url.searchParams.append("client_id", process.env.GOOGLE_CLIENT_ID as string);
+    url.searchParams.append("redirect_uri", process.env.GOOGLE_REDIRECT_URI as string);
+    url.searchParams.append("response_type", "code");
+    url.searchParams.append("scope", "openid email profile");
+    url.searchParams.append("access_type", "offline");
+    url.searchParams.append("prompt", "consent");
+
+    res.json({ url: url.toString() });
+});
+
+/**
+ * Description. Authenticate user with Google OAuth
+ * Path: /oauth/google
+ * Method: GET
+ * Query: {
+ *   code: string
+ * }
+ *
+ * Note:
+ * - The code is provided by Google after user authorization.
+ * - Exchanges authorization code for Google user information.
+ * - Creates a new account if the user does not exist.
+ * - Returns access token and refresh token if authentication succeeds.
+ */
+usersRouter.get("/oauth/google", wrapAsync(oauthGoogleController));
 
 export default usersRouter;
