@@ -636,3 +636,82 @@ export const unfollowValidator = validate(
         ["params"],
     ),
 );
+
+export const changePasswordValidator = validate(
+    checkSchema(
+        {
+            old_password: {
+                notEmpty: { errorMessage: USERS_MESSAGES.OLD_PASSWORD_IS_REQUIRED },
+                isString: true,
+                isLength: {
+                    options: { min: 6, max: 50 },
+                    errorMessage: USERS_MESSAGES.PASSWORD_LENGTH,
+                },
+                custom: {
+                    options: async (value, { req }) => {
+                        const { user_id } = req.decoded_authorization!;
+
+                        const user = await databaseService.users.findOne({
+                            _id: new ObjectId(user_id as string),
+                        });
+
+                        if (!user) {
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.USER_NOT_FOUND,
+                                status: HTTP_STATUS.NOT_FOUND,
+                            });
+                        }
+
+                        // Kiểm tra old_password có đúng không
+                        if (user.password !== hashPassword(value)) {
+                            throw new ErrorWithStatus({
+                                message: USERS_MESSAGES.OLD_PASSWORD_IS_INCORRECT,
+                                status: HTTP_STATUS.UNAUTHORIZED,
+                            });
+                        }
+
+                        return true;
+                    },
+                },
+            },
+            new_password: {
+                notEmpty: { errorMessage: USERS_MESSAGES.NEW_PASSWORD_IS_REQUIRED },
+                isLength: {
+                    options: { min: 6, max: 50 },
+                    errorMessage: USERS_MESSAGES.PASSWORD_LENGTH,
+                },
+                isStrongPassword: {
+                    options: {
+                        minLength: 6,
+                        minLowercase: 1,
+                        minUppercase: 1,
+                        minNumbers: 1,
+                        minSymbols: 1,
+                    },
+                    errorMessage: USERS_MESSAGES.PASSWORD_IS_WEAK,
+                },
+                custom: {
+                    options: (value, { req }) => {
+                        // Mật khẩu mới không được trùng mật khẩu cũ
+                        if (value === req.body.old_password) {
+                            throw new Error(USERS_MESSAGES.NEW_PASSWORD_MUST_BE_DIFFERENT);
+                        }
+                        return true;
+                    },
+                },
+            },
+            confirm_new_password: {
+                notEmpty: { errorMessage: USERS_MESSAGES.CONFIRM_NEW_PASSWORD_IS_REQUIRED },
+                custom: {
+                    options: (value, { req }) => {
+                        if (value !== req.body.new_password) {
+                            throw new Error(USERS_MESSAGES.CONFIRM_NEW_PASSWORD_NOT_MATCH);
+                        }
+                        return true;
+                    },
+                },
+            },
+        },
+        ["body"],
+    ),
+);

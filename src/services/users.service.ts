@@ -320,6 +320,16 @@ class UserService {
             followed_user_id: new ObjectId(followed_user_id),
         });
     }
+
+    async changePassword(user_id: string, new_password: string) {
+        await databaseService.users.updateOne(
+            { _id: new ObjectId(user_id) },
+            {
+                $set: { password: hashPassword(new_password) },
+                $currentDate: { updated_at: true },
+            },
+        );
+    }
 }
 
 const usersService = new UserService();

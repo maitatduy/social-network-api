@@ -68,4 +68,12 @@ export const USERS_MESSAGES = {
     NOT_FOLLOWED: "Bạn chưa follow người dùng này",
     CANNOT_FOLLOW_YOURSELF: "Không thể follow chính mình",
     CANNOT_FOLLOW_UNVERIFIED_USER: "Không thể follow người dùng chưa xác thực",
+
+    CHANGE_PASSWORD_SUCCESS: "Đổi mật khẩu thành công",
+    OLD_PASSWORD_IS_REQUIRED: "Mật khẩu cũ là bắt buộc",
+    OLD_PASSWORD_IS_INCORRECT: "Mật khẩu cũ không đúng",
+    NEW_PASSWORD_IS_REQUIRED: "Mật khẩu mới là bắt buộc",
+    NEW_PASSWORD_MUST_BE_DIFFERENT: "Mật khẩu mới phải khác mật khẩu cũ",
+    CONFIRM_NEW_PASSWORD_IS_REQUIRED: "Xác nhận mật khẩu mới là bắt buộc",
+    CONFIRM_NEW_PASSWORD_NOT_MATCH: "Xác nhận mật khẩu mới không khớp",
 } as const;

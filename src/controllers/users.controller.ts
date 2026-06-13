@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { ParamsDictionary } from "express-serve-static-core";
 import { USERS_MESSAGES } from "~/constants/messages";
 import {
+    ChangePasswordReqBody,
     FollowReqBody,
     ForgotPasswordReqBody,
     GetUserProfileReqParams,
@@ -182,4 +183,16 @@ export const unfollowController = async (
     await usersService.unfollow(user_id, followed_user_id);
 
     res.json({ message: USERS_MESSAGES.UNFOLLOW_SUCCESS });
+};
+
+export const changePasswordController = async (
+    req: Request<ParamsDictionary, MessageResponse, ChangePasswordReqBody>,
+    res: Response,
+) => {
+    const { user_id } = req.decoded_authorization!;
+    const { new_password } = req.body;
+
+    await usersService.changePassword(user_id as string, new_password);
+
+    res.json({ message: USERS_MESSAGES.CHANGE_PASSWORD_SUCCESS });
 };
