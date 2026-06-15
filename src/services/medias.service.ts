@@ -33,7 +33,7 @@ class MediasService {
                 fs.unlinkSync(file.filepath);
 
                 return {
-                    url: `${envConfig.SERVER_URL}/uploads/images/${newName}.jpg`, // ← dùng SERVER_URL
+                    url: `${envConfig.SERVER_URL}/static/images/${newName}.jpg`, // ← dùng SERVER_URL
                     name: `${newName}.jpg`,
                 };
             }),

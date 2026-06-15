@@ -29,7 +29,7 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/uploads", express.static(path.resolve("uploads")));
+app.use("/static", express.static(path.resolve("uploads")));
 app.use("/api/users", usersRouter);
 app.use("/api/medias", mediasRouter);
 app.use(defaultErrorHandler);
