@@ -1,8 +1,9 @@
-import "dotenv/config";
+import "dotenv-flow/config";
 import dns from "node:dns";
 import express from "express";
 import cors from "cors";
 import path from "path";
+import { envConfig } from "~/constants/config";
 import databaseService from "~/services/database.service";
 import usersRouter from "~/routes/users.route";
 import { defaultErrorHandler } from "~/middlewares/error.middleware";
@@ -18,7 +19,9 @@ initFolder();
 
 app.use(
     cors({
-        origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+        origin: envConfig.isProduction
+            ? ["https://linkup.com"]
+            : ["http://localhost:5173", "http://127.0.0.1:5173"],
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
         allowedHeaders: ["Content-Type", "Authorization"],
         credentials: true,
@@ -36,6 +39,7 @@ databaseService
     .then(() => {
         app.listen(PORT, () => {
             console.log(`Server đang chạy ở cổng ${PORT}`);
+            console.log(`Môi trường: ${envConfig.NODE_ENV}`);
         });
     })
     .catch((error) => {

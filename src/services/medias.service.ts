@@ -7,6 +7,7 @@ import fs from "fs";
 import { HTTP_STATUS } from "~/constants/httpStatus";
 import { MEDIAS_MESSAGES } from "~/constants/messages";
 import { ErrorWithStatus } from "~/models/errors/Error";
+import { envConfig } from "~/constants/config";
 
 class MediasService {
     async uploadImage(req: Request) {
@@ -32,7 +33,7 @@ class MediasService {
                 fs.unlinkSync(file.filepath);
 
                 return {
-                    url: `http://localhost:3000/uploads/images/${newName}.jpg`,
+                    url: `${envConfig.SERVER_URL}/uploads/images/${newName}.jpg`, // ← dùng SERVER_URL
                     name: `${newName}.jpg`,
                 };
             }),
