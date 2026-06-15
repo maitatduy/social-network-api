@@ -2,14 +2,19 @@ import "dotenv/config";
 import dns from "node:dns";
 import express from "express";
 import cors from "cors";
+import path from "path";
 import databaseService from "~/services/database.service";
-import usersRouter from "~/routes/users.router";
+import usersRouter from "~/routes/users.route";
 import { defaultErrorHandler } from "~/middlewares/error.middleware";
+import { initFolder } from "./utils/file";
+import mediasRouter from "./routes/medias.route";
 
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+initFolder();
 
 app.use(
     cors({
@@ -21,7 +26,9 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static(path.resolve("uploads")));
 app.use("/api/users", usersRouter);
+app.use("/api/medias", mediasRouter);
 app.use(defaultErrorHandler);
 
 databaseService
