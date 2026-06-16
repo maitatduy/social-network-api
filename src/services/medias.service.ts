@@ -8,9 +8,11 @@ import { HTTP_STATUS } from "~/constants/httpStatus";
 import { MEDIAS_MESSAGES } from "~/constants/messages";
 import { ErrorWithStatus } from "~/models/errors/Error";
 import { envConfig } from "~/constants/config";
+import { Media } from "~/models/schemas/Media.schema";
+import { MediaType } from "~/constants/enum";
 
 class MediasService {
-    async uploadImage(req: Request) {
+    async uploadImage(req: Request): Promise<Media[]> {
         const files = await handleUploadImage(req);
         const images = Array.isArray(files.image) ? files.image : files.image ? [files.image] : [];
 
@@ -32,22 +34,22 @@ class MediasService {
 
                 return {
                     url: `${envConfig.SERVER_URL}/static/images/${newName}.jpg`, // ← dùng SERVER_URL
-                    name: `${newName}.jpg`,
-                };
+                    type: MediaType.Image,
+                } as Media;
             }),
         );
 
         return result;
     }
 
-    async uploadVideo(req: Request) {
+    async uploadVideo(req: Request): Promise<Media> {
         const files = await handleUploadVideo(req);
         const video = files.video![0];
 
         return {
             url: `${envConfig.SERVER_URL}/static/videos/${video.newFilename}`,
-            name: video.newFilename,
-        };
+            type: MediaType.Video,
+        } as Media;
     }
 }
 

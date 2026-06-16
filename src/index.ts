@@ -9,6 +9,7 @@ import usersRouter from "~/routes/users.route";
 import { defaultErrorHandler } from "~/middlewares/error.middleware";
 import { initFolder } from "./utils/file";
 import mediasRouter from "./routes/medias.route";
+import staticRouter from "./routes/static.route";
 
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
@@ -29,9 +30,9 @@ app.use(
 );
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use("/static", express.static(path.resolve("uploads")));
 app.use("/api/users", usersRouter);
 app.use("/api/medias", mediasRouter);
+app.use("/static", staticRouter);
 app.use(defaultErrorHandler);
 
 databaseService

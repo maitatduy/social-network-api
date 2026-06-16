@@ -83,6 +83,7 @@ export const USERS_MESSAGES = {
 
 export const MEDIAS_MESSAGES = {
     UPLOAD_SUCCESS: "Upload ảnh thành công",
+    FILE_NOT_FOUND: "File không tồn tại",
     FILE_TYPE_NOT_ALLOWED: "Chỉ chấp nhận file ảnh",
     FILE_SIZE_TOO_LARGE: "Dung lượng file tối đa 5MB",
     NO_FILE_UPLOADED: "Không có file nào được upload",
