@@ -1,5 +1,5 @@
 import fs from "fs";
-import { UPLOAD_TEMP_DIR, UPLOAD_IMAGE_DIR } from "~/constants/dir";
+import { UPLOAD_TEMP_DIR, UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR } from "~/constants/dir";
 import formidable, { Files } from "formidable";
 import { Request } from "express";
 import { HTTP_STATUS } from "~/constants/httpStatus";
@@ -7,7 +7,7 @@ import { MEDIAS_MESSAGES } from "~/constants/messages";
 import { ErrorWithStatus } from "~/models/errors/Error";
 
 export const initFolder = () => {
-    [UPLOAD_TEMP_DIR, UPLOAD_IMAGE_DIR].forEach((dir) => {
+    [UPLOAD_TEMP_DIR, UPLOAD_IMAGE_DIR, UPLOAD_VIDEO_DIR].forEach((dir) => {
         if (!fs.existsSync(dir)) {
             fs.mkdirSync(dir, { recursive: true });
             console.log(`Tạo thư mục ${dir}`);
@@ -86,6 +86,69 @@ export const handleUploadImage = (req: Request) => {
             }
 
             if (!files.image || !files.image.length) {
+                return reject(
+                    new ErrorWithStatus({
+                        message: MEDIAS_MESSAGES.NO_FILE_UPLOADED,
+                        status: HTTP_STATUS.BAD_REQUEST,
+                    }),
+                );
+            }
+
+            resolve(files);
+        });
+    });
+};
+
+export const handleUploadVideo = (req: Request) => {
+    const form = formidable({
+        uploadDir: UPLOAD_VIDEO_DIR,
+        maxFiles: 1,
+        maxFileSize: 200 * 1024 * 1024,
+        keepExtensions: true,
+        filter: ({ name, originalFilename, mimetype }) => {
+            const isValidFieldName = name === "video";
+            const isVideo = Boolean(mimetype?.startsWith("video/"));
+            const hasFilename = Boolean(originalFilename);
+
+            if (!isValidFieldName || !isVideo || !hasFilename) {
+                form.emit(
+                    "error" as any,
+                    new ErrorWithStatus({
+                        message: !isValidFieldName
+                            ? MEDIAS_MESSAGES.INVALID_FIELD_NAME
+                            : !hasFilename
+                              ? MEDIAS_MESSAGES.FILENAME_NOT_STRING
+                              : MEDIAS_MESSAGES.FILE_TYPE_NOT_ALLOWED,
+                        status: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+                    }) as any,
+                );
+                return false;
+            }
+
+            return true;
+        },
+    });
+
+    return new Promise<Files>((resolve, reject) => {
+        form.parse(req, (err, fields, files) => {
+            if (err) {
+                if (err instanceof ErrorWithStatus) return reject(err);
+
+                const formidableErrors: Record<number, string> = {
+                    1009: MEDIAS_MESSAGES.BIGGER_THAN_TOTAL_MAX_FILE_SIZE,
+                    1015: MEDIAS_MESSAGES.MAX_FILES_EXCEEDED,
+                    1016: MEDIAS_MESSAGES.BIGGER_THAN_MAX_FILE_SIZE,
+                };
+
+                return reject(
+                    new ErrorWithStatus({
+                        message: formidableErrors[err.code] ?? err.message,
+                        status: HTTP_STATUS.UNPROCESSABLE_ENTITY,
+                    }),
+                );
+            }
+
+            if (!files.video || !files.video.length) {
                 return reject(
                     new ErrorWithStatus({
                         message: MEDIAS_MESSAGES.NO_FILE_UPLOADED,

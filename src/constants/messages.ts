@@ -107,4 +107,5 @@ export const MEDIAS_MESSAGES = {
     PLUGIN_FAILED: "Plugin xử lý file thất bại",
     CANNOT_CREATE_DIR: "Không thể tạo thư mục upload",
     INVALID_FIELD_NAME: 'Field name phải là "image"',
+    UPLOAD_VIDEO_SUCCESS: "Upload video thành công",
 } as const;

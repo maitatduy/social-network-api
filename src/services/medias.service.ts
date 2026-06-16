@@ -1,7 +1,7 @@
 import path from "path";
 import sharp from "sharp";
 import { UPLOAD_IMAGE_DIR } from "~/constants/dir";
-import { handleUploadImage } from "~/utils/file";
+import { handleUploadImage, handleUploadVideo } from "~/utils/file";
 import { Request } from "express";
 import fs from "fs";
 import { HTTP_STATUS } from "~/constants/httpStatus";
@@ -26,10 +26,8 @@ class MediasService {
                 const newName = file.newFilename.split(".")[0];
                 const newPath = path.resolve(UPLOAD_IMAGE_DIR, `${newName}.jpg`);
 
-                // Dùng sharp để convert về jpg và optimize
                 await sharp(file.filepath).jpeg({ quality: 80 }).toFile(newPath);
 
-                // Xóa file temp sau khi xử lý
                 fs.unlinkSync(file.filepath);
 
                 return {
@@ -40,6 +38,16 @@ class MediasService {
         );
 
         return result;
+    }
+
+    async uploadVideo(req: Request) {
+        const files = await handleUploadVideo(req);
+        const video = files.video![0];
+
+        return {
+            url: `${envConfig.SERVER_URL}/static/videos/${video.newFilename}`,
+            name: video.newFilename,
+        };
     }
 }
 
