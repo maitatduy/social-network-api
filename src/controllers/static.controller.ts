@@ -31,10 +31,35 @@ export const serveVideoController = (req: Request<ServeFileParams>, res: Respons
 
     if (!fs.existsSync(filePath)) {
         throw new ErrorWithStatus({
-            message: MEDIAS_MESSAGES.FILENAME_NOT_STRING,
+            message: MEDIAS_MESSAGES.FILE_NOT_FOUND,
             status: HTTP_STATUS.NOT_FOUND,
         });
     }
 
-    res.sendFile(filePath);
+    const stat = fs.statSync(filePath);
+    const fileSize = stat.size;
+    const range = req.headers.range;
+
+    if (!range) {
+        res.writeHead(200, {
+            "Content-Length": fileSize,
+            "Content-Type": "video/mp4",
+        });
+        fs.createReadStream(filePath).pipe(res);
+        return;
+    }
+
+    const parts = range.replace(/bytes=/, "").split("-");
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+    const chunkSize = end - start + 1;
+
+    res.writeHead(HTTP_STATUS.PARTIAL_CONTENT, {
+        "Content-Range": `bytes ${start}-${end}/${fileSize}`,
+        "Accept-Ranges": "bytes",
+        "Content-Length": chunkSize,
+        "Content-Type": "video/mp4",
+    });
+
+    fs.createReadStream(filePath, { start, end }).pipe(res);
 };
